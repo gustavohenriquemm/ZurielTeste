@@ -82,15 +82,24 @@ export async function renderHymnal(root, collection, navigate, route = collectio
           <span>Hino ${String(selected.number).padStart(3, '0')}</span>
           <h2>${escapeHtml(selected.title)}</h2>
         </header>
+        <div class="lyrics">${escapeHtml(selected.lyrics)}</div>
         ${collection === 'mocidade' ? `
           <div class="hymn-share-actions">
-            <a class="primary-button" href="${getWhatsAppUrl(selected)}" target="_blank" rel="noopener">Enviar no WhatsApp</a>
+            <a class="share-button whatsapp-button" href="${getWhatsAppUrl(selected, collection)}" target="_blank" rel="noopener" aria-label="Enviar link no WhatsApp">
+              ${brandIcon('whatsapp')}
+              <span>WhatsApp</span>
+            </a>
             ${selected.youtubeUrl
-              ? `<a class="plain-button" href="${escapeAttr(normalizeExternalUrl(selected.youtubeUrl))}" target="_blank" rel="noopener">Abrir no YouTube</a>`
-              : '<button class="plain-button" type="button" disabled>YouTube sem link</button>'}
+              ? `<a class="share-button youtube-button" href="${escapeAttr(normalizeExternalUrl(selected.youtubeUrl))}" target="_blank" rel="noopener" aria-label="Abrir hino no YouTube">
+                  ${brandIcon('youtube')}
+                  <span>YouTube</span>
+                </a>`
+              : `<button class="share-button youtube-button" type="button" disabled aria-label="Hino sem link do YouTube">
+                  ${brandIcon('youtube')}
+                  <span>YouTube</span>
+                </button>`}
           </div>
         ` : ''}
-        <div class="lyrics">${escapeHtml(selected.lyrics)}</div>
         <nav class="detail-nav">
           <button class="plain-button" ${prev ? `data-go="${escapeAttr(prev.id)}"` : 'disabled'}>Anterior</button>
           <button class="primary-button" ${next ? `data-go="${escapeAttr(next.id)}"` : 'disabled'}>Proximo</button>
@@ -134,13 +143,26 @@ function escapeAttr(value) {
   return escapeHtml(value).replace(/`/g, '&#096;');
 }
 
-function getWhatsAppUrl(hymn) {
-  const text = `Hino ${String(hymn.number).padStart(3, '0')} - ${hymn.title}\n\n${hymn.lyrics || ''}`;
+function getWhatsAppUrl(hymn, collection) {
+  const link = getHymnLink(hymn, collection);
+  const text = `Hino ${String(hymn.number).padStart(3, '0')} - ${hymn.title}\n${link}`;
   return `https://wa.me/?text=${encodeURIComponent(text)}`;
+}
+
+function getHymnLink(hymn, collection) {
+  const route = `#${collection}:${encodeURIComponent(hymn.id || hymn.number)}`;
+  return `${location.origin}${location.pathname}${route}`;
 }
 
 function normalizeExternalUrl(value) {
   const url = String(value || '').trim();
   if (!url) return '';
   return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+}
+
+function brandIcon(name) {
+  if (name === 'youtube') {
+    return '<svg aria-hidden="true" viewBox="0 0 24 24"><path fill="currentColor" d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8ZM9.6 15.6V8.4l6.3 3.6-6.3 3.6Z"/></svg>';
+  }
+  return '<svg aria-hidden="true" viewBox="0 0 24 24"><path fill="currentColor" d="M20.5 3.5A11.7 11.7 0 0 0 12.1 0 11.9 11.9 0 0 0 1.8 17.8L0 24l6.4-1.7a11.9 11.9 0 0 0 5.7 1.5h.1A11.9 11.9 0 0 0 24 11.9a11.8 11.8 0 0 0-3.5-8.4ZM12.2 21.8h-.1a9.9 9.9 0 0 1-5-1.4l-.4-.2-3.8 1 1-3.7-.2-.4a9.8 9.8 0 1 1 8.5 4.7Zm5.4-7.4c-.3-.2-1.8-.9-2.1-1-.3-.1-.5-.2-.7.2-.2.3-.8 1-.9 1.2-.2.2-.3.2-.6.1a8.1 8.1 0 0 1-2.4-1.5 9 9 0 0 1-1.6-2c-.2-.3 0-.5.1-.6l.5-.6.3-.5c.1-.2 0-.4 0-.5l-1-2.3c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.5.1-.8.4-.3.3-1 1-1 2.4s1 2.8 1.2 3c.1.2 2 3.1 4.9 4.3.7.3 1.2.5 1.7.6.7.2 1.3.2 1.8.1.6-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4l-.3-.2Z"/></svg>';
 }
