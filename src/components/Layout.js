@@ -1,8 +1,9 @@
 import { icon } from './icons.js?v=20260708-5';
-import { listenNotices } from '../../database/firestore.js?v=20260708-26';
+import { listenNotices } from '../../database/firestore.js?v=20260708-27';
 
 let noticesUnsubscribe;
 let activeNotices = [];
+let autoNoticeOpened = false;
 
 export function renderLayout(root, activeRoute, navigate) {
   root.innerHTML = `
@@ -75,7 +76,7 @@ function bindNotices(root) {
     screen.classList.add('hidden');
     document.body.classList.remove('modal-open');
   };
-  const openNotices = (markAsSeen = false) => {
+  const openNotices = () => {
     modal.innerHTML = `
       <header>
         <h2>Aviso</h2>
@@ -96,7 +97,6 @@ function bindNotices(root) {
     screen.classList.remove('hidden');
     document.body.classList.add('modal-open');
     modal.querySelectorAll('[data-close-notice]').forEach((item) => item.addEventListener('click', () => {
-      if (markAsSeen) sessionStorage.setItem(getNoticeSeenKey(activeNotices), 'true');
       closeNotices();
     }));
   };
@@ -104,14 +104,14 @@ function bindNotices(root) {
   screen.addEventListener('click', (event) => {
     if (event.target === screen) closeNotices();
   });
-  button.addEventListener('click', () => openNotices(true));
+  button.addEventListener('click', () => openNotices());
   renderBadge();
-  if (shouldAutoOpenNotices(activeNotices)) openNotices(true);
+  if (shouldAutoOpenNotices(activeNotices)) openNotices();
   noticesUnsubscribe?.();
   noticesUnsubscribe = listenNotices((notices) => {
     activeNotices = notices.filter(isNoticeActive);
     renderBadge();
-    if (shouldAutoOpenNotices(activeNotices)) openNotices(true);
+    if (shouldAutoOpenNotices(activeNotices)) openNotices();
   });
 }
 
@@ -124,15 +124,9 @@ function isNoticeActive(notice) {
 }
 
 function shouldAutoOpenNotices(notices) {
-  return notices.length > 0 && sessionStorage.getItem(getNoticeSeenKey(notices)) !== 'true';
-}
-
-function getNoticeSeenKey(notices) {
-  const signature = notices
-    .map((notice) => `${notice.id || 'notice'}-${notice.updatedAt || ''}`)
-    .sort()
-    .join('|');
-  return `zuriel:notices-seen:${signature}`;
+  if (!notices.length || autoNoticeOpened) return false;
+  autoNoticeOpened = true;
+  return true;
 }
 
 function getLocalDateKey() {

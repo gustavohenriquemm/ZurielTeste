@@ -816,6 +816,31 @@ button {
   padding: 18px;
 }
 
+.calendar-notices {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.calendar-notice {
+  border: 1px solid rgba(255, 72, 72, 0.74);
+  border-radius: 18px;
+  background: rgba(120, 0, 0, 0.22);
+  color: #fff;
+  padding: 16px;
+  box-shadow: 0 18px 42px rgba(255, 0, 0, 0.14);
+}
+
+.calendar-notice strong {
+  color: #ff5b5b;
+  font-size: 1rem;
+}
+
+.calendar-notice p {
+  margin: 6px 0 0;
+  color: #fff;
+}
+
 .calendar-toolbar,
 .events-heading {
   display: flex;

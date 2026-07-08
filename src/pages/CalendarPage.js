@@ -1,10 +1,12 @@
 import { getEventsForDate, getMonthDays, toDateKey, formatDate, watchCalendarEvents } from '../services/calendarService.js?v=20260708-21';
+import { listenNotices } from '../../database/firestore.js?v=20260708-27';
 
 export function renderCalendar(root) {
   const today = new Date();
   let current = new Date(today.getFullYear(), today.getMonth(), 1);
   let selected = new Date(today);
   let remoteEvents = [];
+  let activeNotices = [];
 
   root.innerHTML = `
     <section class="panel calendar-panel">
@@ -23,12 +25,26 @@ export function renderCalendar(root) {
     remoteEvents = events;
     draw();
   });
+  const stopNotices = listenNotices((notices) => {
+    activeNotices = notices.filter(isNoticeActive);
+    draw();
+  });
   root.dataset.cleanup = stop ? 'watching' : '';
 
   function draw() {
     const days = getMonthDays(current.getFullYear(), current.getMonth());
     const selectedEvents = getEventsForDate(selected, remoteEvents);
     calendar.innerHTML = `
+      ${activeNotices.length ? `
+        <section class="calendar-notices" aria-label="Avisos ativos">
+          ${activeNotices.map((notice) => `
+            <article class="calendar-notice">
+              <strong>${escapeHtml(notice.title || 'Aviso')}</strong>
+              <p>${escapeHtml(notice.message || '')}</p>
+            </article>
+          `).join('')}
+        </section>
+      ` : ''}
       <div class="calendar-toolbar">
         <button class="plain-button" data-prev>Anterior</button>
         <h2>${current.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h2>
@@ -85,6 +101,13 @@ export function renderCalendar(root) {
   }
 
   draw();
+}
+
+function isNoticeActive(notice) {
+  if (notice.active === false || notice.active === 'false') return false;
+  const today = toDateKey(new Date());
+  if (notice.expiresAt && String(notice.expiresAt).slice(0, 10) < today) return false;
+  return true;
 }
 
 function parseDateKey(value) {
