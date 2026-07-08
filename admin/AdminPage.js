@@ -11,7 +11,7 @@ import {
   saveNotice,
   signInAdmin,
   signOutAdmin,
-} from '../database/firestore.js?v=20260708-21';
+} from '../database/firestore.js?v=20260708-24';
 import { getHymns } from '../src/services/hymnService.js';
 
 export function renderAdmin(root) {
@@ -315,7 +315,7 @@ function renderEditor(content, user) {
     setValue(forms.notice, '#notice-title', item?.title);
     setValue(forms.notice, '#notice-message', item?.message);
     setValue(forms.notice, '#notice-active', String(item?.active !== false));
-    setValue(forms.notice, '#notice-start', item?.startDate);
+    setValue(forms.notice, '#notice-start', item?.startDate || getLocalDateKey());
     setValue(forms.notice, '#notice-expire', item?.expiresAt);
     openModal(screen, forms, forms.notice);
   }
@@ -420,4 +420,12 @@ function normalizeExternalUrl(value) {
   const url = String(value || '').trim();
   if (!url) return '';
   return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+}
+
+function getLocalDateKey() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }

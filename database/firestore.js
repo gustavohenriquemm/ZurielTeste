@@ -77,14 +77,22 @@ export async function saveHymn(collectionName, hymn) {
   if (!firebase) throw new Error('Firebase ainda nao configurado.');
   const { collection, doc, setDoc } = firebase.firestoreModule;
   const id = hymn.id || `${collectionName}-${hymn.number}`;
-  await setDoc(doc(collection(firebase.db, collectionName), id), { ...hymn, id, updatedAt: Date.now() });
+  try {
+    await setDoc(doc(collection(firebase.db, collectionName), id), { ...hymn, id, updatedAt: Date.now() });
+  } catch (error) {
+    throw new Error(getFriendlyFirestoreError(error));
+  }
 }
 
 export async function deleteHymn(collectionName, id) {
   const firebase = await getFirebase();
   if (!firebase) throw new Error('Firebase ainda nao configurado.');
   const { doc, deleteDoc } = firebase.firestoreModule;
-  await deleteDoc(doc(firebase.db, collectionName, id));
+  try {
+    await deleteDoc(doc(firebase.db, collectionName, id));
+  } catch (error) {
+    throw new Error(getFriendlyFirestoreError(error));
+  }
 }
 
 export async function saveCalendarEvent(event) {
@@ -92,14 +100,22 @@ export async function saveCalendarEvent(event) {
   if (!firebase) throw new Error('Firebase ainda nao configurado.');
   const { collection, doc, setDoc } = firebase.firestoreModule;
   const id = event.id || `event-${Date.now()}`;
-  await setDoc(doc(collection(firebase.db, 'calendarEvents'), id), { ...event, id, updatedAt: Date.now() });
+  try {
+    await setDoc(doc(collection(firebase.db, 'calendarEvents'), id), { ...event, id, updatedAt: Date.now() });
+  } catch (error) {
+    throw new Error(getFriendlyFirestoreError(error));
+  }
 }
 
 export async function deleteCalendarEvent(id) {
   const firebase = await getFirebase();
   if (!firebase) throw new Error('Firebase ainda nao configurado.');
   const { doc, deleteDoc } = firebase.firestoreModule;
-  await deleteDoc(doc(firebase.db, 'calendarEvents', id));
+  try {
+    await deleteDoc(doc(firebase.db, 'calendarEvents', id));
+  } catch (error) {
+    throw new Error(getFriendlyFirestoreError(error));
+  }
 }
 
 export async function saveNotice(notice) {
@@ -107,14 +123,22 @@ export async function saveNotice(notice) {
   if (!firebase) throw new Error('Firebase ainda nao configurado.');
   const { collection, doc, setDoc } = firebase.firestoreModule;
   const id = notice.id || `notice-${Date.now()}`;
-  await setDoc(doc(collection(firebase.db, 'notices'), id), { ...notice, id, updatedAt: Date.now() });
+  try {
+    await setDoc(doc(collection(firebase.db, 'notices'), id), { ...notice, id, updatedAt: Date.now() });
+  } catch (error) {
+    throw new Error(getFriendlyFirestoreError(error));
+  }
 }
 
 export async function deleteNotice(id) {
   const firebase = await getFirebase();
   if (!firebase) throw new Error('Firebase ainda nao configurado.');
   const { doc, deleteDoc } = firebase.firestoreModule;
-  await deleteDoc(doc(firebase.db, 'notices', id));
+  try {
+    await deleteDoc(doc(firebase.db, 'notices', id));
+  } catch (error) {
+    throw new Error(getFriendlyFirestoreError(error));
+  }
 }
 
 function getFriendlyAuthError(error) {
@@ -129,4 +153,13 @@ function getFriendlyAuthError(error) {
     return 'Ative o login por e-mail e senha no Firebase Authentication.';
   }
   return error?.message || 'Nao foi possivel entrar no painel.';
+}
+
+function getFriendlyFirestoreError(error) {
+  const code = error?.code || '';
+  const message = error?.message || '';
+  if (code.includes('permission-denied') || message.includes('Missing or insufficient permissions')) {
+    return 'Este usuario entrou, mas ainda nao esta cadastrado como administrador no Firestore. Crie um documento em admins com o UID deste usuario e publique as regras.';
+  }
+  return message || 'Nao foi possivel salvar no Firebase.';
 }

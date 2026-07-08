@@ -1,5 +1,5 @@
 import { icon } from './icons.js?v=20260708-5';
-import { listenNotices } from '../../database/firestore.js?v=20260708-21';
+import { listenNotices } from '../../database/firestore.js?v=20260708-25';
 
 let noticesUnsubscribe;
 let activeNotices = [];
@@ -13,7 +13,7 @@ export function renderLayout(root, activeRoute, navigate) {
         </button>
         <button class="brand-title" data-route="home" title="Inicio">MOCIDADE ZURIEL</button>
         <nav class="top-actions" aria-label="Navegacao principal">
-          <button class="icon-button top-icon notice-button" data-notices title="Notificacoes">${icon('bell')}<span class="notice-badge hidden" data-notice-badge>0</span></button>
+          <button class="icon-button top-icon notice-button" data-notices title="Avisos">${icon('bell')}<span class="notice-badge hidden" data-notice-badge>0</span></button>
           <button class="icon-button admin-shortcut" data-route="admin" title="Painel administrativo">${icon('user')}</button>
         </nav>
       </header>
@@ -69,21 +69,24 @@ function bindNotices(root) {
     badge.textContent = String(activeNotices.length);
     badge.classList.toggle('hidden', activeNotices.length === 0);
     button.classList.toggle('has-notices', activeNotices.length > 0);
-    button.setAttribute('aria-label', activeNotices.length ? `${activeNotices.length} aviso(s)` : 'Notificacoes');
+    button.setAttribute('aria-label', activeNotices.length ? `${activeNotices.length} aviso(s)` : 'Avisos');
   };
-  const openNotices = () => {
-    if (!activeNotices.length) return;
+  const closeNotices = () => {
+    screen.classList.add('hidden');
+    document.body.classList.remove('modal-open');
+  };
+  const openNotices = (markAsSeen = false) => {
     modal.innerHTML = `
       <header>
-        <h2>📢 Aviso Importante</h2>
+        <h2>Aviso</h2>
       </header>
       <div class="notice-list">
-        ${activeNotices.map((notice) => `
+        ${activeNotices.length ? activeNotices.map((notice) => `
           <article>
             <strong>${escapeHtml(notice.title || 'Aviso Importante')}</strong>
             <p>${escapeHtml(notice.message || '')}</p>
           </article>
-        `).join('')}
+        `).join('') : '<article><strong>Nenhum aviso ativo</strong><p>Quando houver um aviso da igreja, ele aparecera aqui.</p></article>'}
       </div>
       <div class="form-actions">
         <button class="plain-button" data-close-notice>Fechar</button>
@@ -93,29 +96,65 @@ function bindNotices(root) {
     screen.classList.remove('hidden');
     document.body.classList.add('modal-open');
     modal.querySelectorAll('[data-close-notice]').forEach((item) => item.addEventListener('click', () => {
-      sessionStorage.setItem('zuriel:notices-seen', 'true');
-      screen.classList.add('hidden');
-      document.body.classList.remove('modal-open');
+      if (markAsSeen) sessionStorage.setItem(getNoticeSeenKey(activeNotices), 'true');
+      closeNotices();
     }));
   };
 
-  button.addEventListener('click', openNotices);
+  screen.addEventListener('click', (event) => {
+    if (event.target === screen) closeNotices();
+  });
+  button.addEventListener('click', () => openNotices(true));
   renderBadge();
-  if (activeNotices.length && sessionStorage.getItem('zuriel:notices-seen') !== 'true') openNotices();
+  if (shouldAutoOpenNotices(activeNotices)) openNotices(true);
   noticesUnsubscribe?.();
   noticesUnsubscribe = listenNotices((notices) => {
     activeNotices = notices.filter(isNoticeActive);
     renderBadge();
-    if (activeNotices.length && sessionStorage.getItem('zuriel:notices-seen') !== 'true') openNotices();
+    if (shouldAutoOpenNotices(activeNotices)) openNotices(true);
   });
 }
 
 function isNoticeActive(notice) {
-  if (notice.active === false) return false;
-  const today = new Date().toISOString().slice(0, 10);
-  if (notice.startDate && notice.startDate > today) return false;
-  if (notice.expiresAt && notice.expiresAt < today) return false;
+  if (notice.active === false || notice.active === 'false') return false;
+  const today = getLocalDateKey();
+  const startDate = normalizeDateKey(notice.startDate);
+  const expiresAt = normalizeDateKey(notice.expiresAt);
+  if (startDate && startDate > today) return false;
+  if (expiresAt && expiresAt < today) return false;
   return true;
+}
+
+function shouldAutoOpenNotices(notices) {
+  return notices.length > 0 && sessionStorage.getItem(getNoticeSeenKey(notices)) !== 'true';
+}
+
+function getNoticeSeenKey(notices) {
+  const signature = notices
+    .map((notice) => `${notice.id || 'notice'}-${notice.updatedAt || ''}`)
+    .sort()
+    .join('|');
+  return `zuriel:notices-seen:${signature}`;
+}
+
+function getLocalDateKey() {
+  const now = new Date();
+  return toDateKey(now);
+}
+
+function normalizeDateKey(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value.slice(0, 10);
+  if (typeof value?.toDate === 'function') return toDateKey(value.toDate());
+  if (value instanceof Date) return toDateKey(value);
+  return '';
+}
+
+function toDateKey(date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 function escapeHtml(value) {
