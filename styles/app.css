@@ -32,6 +32,11 @@
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+  touch-action: manipulation;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -39,6 +44,11 @@ body {
   color: var(--text);
   font-family: Poppins, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   letter-spacing: 0;
+}
+
+body.modal-open {
+  overflow: hidden;
+  touch-action: none;
 }
 
 [data-theme="dark"] body {
@@ -50,10 +60,12 @@ input,
 select,
 textarea {
   font: inherit;
+  font-size: 16px;
 }
 
 button {
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 .app-shell {
@@ -717,9 +729,24 @@ button {
   gap: 12px;
 }
 
-.detail-nav button:disabled {
+.detail-nav button:disabled,
+.hymn-share-actions button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+.hymn-share-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.hymn-share-actions a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 
 .reader {
@@ -935,7 +962,7 @@ button {
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  z-index: 50;
+  z-index: 1200;
   width: min(460px, calc(100vw - 32px));
   min-height: 96px;
   border: 1px solid rgba(255, 193, 7, 0.5);
@@ -1039,15 +1066,17 @@ button {
 .modal-screen {
   position: fixed;
   inset: 0;
-  z-index: 60;
+  z-index: 999;
   display: grid;
   place-items: center;
   padding: 18px;
-  background: rgba(0, 0, 0, 0.72);
+  background: rgba(0, 0, 0, 0.75);
   backdrop-filter: blur(5px);
 }
 
 .app-modal {
+  position: relative;
+  z-index: 1000;
   width: min(780px, 100%);
   max-height: min(88vh, 900px);
   overflow: auto;

@@ -1,5 +1,5 @@
 import { icon } from './icons.js?v=20260708-5';
-import { listenNotices } from '../../database/firestore.js?v=20260708-17';
+import { listenNotices } from '../../database/firestore.js?v=20260708-21';
 
 let noticesUnsubscribe;
 let activeNotices = [];
@@ -91,9 +91,11 @@ function bindNotices(root) {
       </div>
     `;
     screen.classList.remove('hidden');
+    document.body.classList.add('modal-open');
     modal.querySelectorAll('[data-close-notice]').forEach((item) => item.addEventListener('click', () => {
       sessionStorage.setItem('zuriel:notices-seen', 'true');
       screen.classList.add('hidden');
+      document.body.classList.remove('modal-open');
     }));
   };
 

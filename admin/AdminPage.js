@@ -11,7 +11,7 @@ import {
   saveNotice,
   signInAdmin,
   signOutAdmin,
-} from '../database/firestore.js?v=20260708-17';
+} from '../database/firestore.js?v=20260708-21';
 import { getHymns } from '../src/services/hymnService.js';
 
 export function renderAdmin(root) {
@@ -75,6 +75,7 @@ function renderEditor(content, user) {
         <input type="hidden" id="hymn-id">
         <div class="field"><label for="hymn-number">Numero</label><input id="hymn-number" type="number" min="1" required></div>
         <div class="field"><label for="hymn-title">Titulo</label><input id="hymn-title" required></div>
+        <div class="field"><label for="hymn-youtube">Link do YouTube (opcional)</label><input id="hymn-youtube" placeholder="Cole o link do YouTube"></div>
         <div class="field"><label for="hymn-lyrics">Letra</label><textarea id="hymn-lyrics" required></textarea></div>
         <div class="form-actions">
           <button class="primary-button" type="submit">Salvar</button>
@@ -192,6 +193,7 @@ function renderEditor(content, user) {
     forms.hymn.querySelector('#hymn-id').value = hymn?.id || '';
     forms.hymn.querySelector('#hymn-number').value = hymn?.number || '';
     forms.hymn.querySelector('#hymn-title').value = hymn?.title || '';
+    forms.hymn.querySelector('#hymn-youtube').value = hymn?.youtubeUrl || '';
     forms.hymn.querySelector('#hymn-lyrics').value = hymn?.lyrics || '';
     openModal(screen, forms, forms.hymn);
   }
@@ -211,6 +213,7 @@ function renderEditor(content, user) {
         id: id || `${state.collection}-${number}`,
         number,
         title: forms.hymn.querySelector('#hymn-title').value.trim(),
+        youtubeUrl: normalizeExternalUrl(forms.hymn.querySelector('#hymn-youtube').value),
         lyrics: forms.hymn.querySelector('#hymn-lyrics').value.trim(),
         category: state.collection,
       });
@@ -259,13 +262,19 @@ function renderEditor(content, user) {
 
   forms.event.addEventListener('submit', async (event) => {
     event.preventDefault();
+    const recurrence = forms.event.querySelector('#event-recurrence').value;
+    const date = forms.event.querySelector('#event-date').value;
+    if (recurrence === 'none' && !date) {
+      showToast('Escolha uma data para o evento.');
+      return;
+    }
     try {
       await saveCalendarEvent({
         id: forms.event.querySelector('#event-id').value,
         title: forms.event.querySelector('#event-title').value.trim(),
-        date: forms.event.querySelector('#event-date').value,
+        date,
         time: forms.event.querySelector('#event-time').value,
-        recurrence: forms.event.querySelector('#event-recurrence').value,
+        recurrence,
         location: forms.event.querySelector('#event-location').value.trim(),
         notes: forms.event.querySelector('#event-notes').value.trim(),
         color: forms.event.querySelector('#event-color').value,
@@ -345,11 +354,13 @@ function openModal(screen, forms, active) {
   Object.values(forms).forEach((form) => form.classList.add('hidden'));
   active.classList.remove('hidden');
   screen.classList.remove('hidden');
+  document.body.classList.add('modal-open');
 }
 
 function closeModal(screen, forms) {
   Object.values(forms).forEach((form) => form.classList.add('hidden'));
   screen.classList.add('hidden');
+  document.body.classList.remove('modal-open');
 }
 
 function confirmDelete(screen, forms, state, text, action) {
@@ -403,4 +414,10 @@ function showToast(message) {
   toast.textContent = message;
   document.body.appendChild(toast);
   setTimeout(() => toast.remove(), 3600);
+}
+
+function normalizeExternalUrl(value) {
+  const url = String(value || '').trim();
+  if (!url) return '';
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`;
 }

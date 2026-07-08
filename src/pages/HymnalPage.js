@@ -82,6 +82,14 @@ export async function renderHymnal(root, collection, navigate, route = collectio
           <span>Hino ${String(selected.number).padStart(3, '0')}</span>
           <h2>${escapeHtml(selected.title)}</h2>
         </header>
+        ${collection === 'mocidade' ? `
+          <div class="hymn-share-actions">
+            <a class="primary-button" href="${getWhatsAppUrl(selected)}" target="_blank" rel="noopener">Enviar no WhatsApp</a>
+            ${selected.youtubeUrl
+              ? `<a class="plain-button" href="${escapeAttr(normalizeExternalUrl(selected.youtubeUrl))}" target="_blank" rel="noopener">Abrir no YouTube</a>`
+              : '<button class="plain-button" type="button" disabled>YouTube sem link</button>'}
+          </div>
+        ` : ''}
         <div class="lyrics">${escapeHtml(selected.lyrics)}</div>
         <nav class="detail-nav">
           <button class="plain-button" ${prev ? `data-go="${escapeAttr(prev.id)}"` : 'disabled'}>Anterior</button>
@@ -124,4 +132,15 @@ function escapeHtml(value) {
 
 function escapeAttr(value) {
   return escapeHtml(value).replace(/`/g, '&#096;');
+}
+
+function getWhatsAppUrl(hymn) {
+  const text = `Hino ${String(hymn.number).padStart(3, '0')} - ${hymn.title}\n\n${hymn.lyrics || ''}`;
+  return `https://wa.me/?text=${encodeURIComponent(text)}`;
+}
+
+function normalizeExternalUrl(value) {
+  const url = String(value || '').trim();
+  if (!url) return '';
+  return /^https?:\/\//i.test(url) ? url : `https://${url}`;
 }

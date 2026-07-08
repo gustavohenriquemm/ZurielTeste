@@ -1,9 +1,9 @@
-import { renderLayout } from './components/Layout.js?v=20260708-19';
-import { renderHome } from './pages/HomePage.js?v=20260708-12';
+import { renderLayout } from './components/Layout.js?v=20260708-21';
+import { renderHome } from './pages/HomePage.js?v=20260708-21';
 import { renderBible } from './pages/BiblePage.js?v=20260708-2';
-import { renderHymnal } from './pages/HymnalPage.js?v=20260708-17';
-import { renderCalendar } from './pages/CalendarPage.js?v=20260708-17';
-import { renderAdmin } from '../admin/AdminPage.js?v=20260708-17';
+import { renderHymnal } from './pages/HymnalPage.js?v=20260708-22';
+import { renderCalendar } from './pages/CalendarPage.js?v=20260708-21';
+import { renderAdmin } from '../admin/AdminPage.js?v=20260708-22';
 import { initTheme } from './hooks/useTheme.js';
 import { registerServiceWorker } from './utils/pwa.js?v=20260708-2';
 

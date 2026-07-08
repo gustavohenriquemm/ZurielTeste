@@ -41,7 +41,7 @@ export function listenHymns(collectionName, callback) {
     const ref = query(collection(firebase.db, collectionName), orderBy('number', 'asc'));
     unsubscribe = onSnapshot(ref, (snapshot) => {
       callback(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-    });
+    }, () => callback([]));
   });
   return () => unsubscribe?.();
 }
@@ -54,7 +54,7 @@ export function listenCalendarEvents(callback) {
     const ref = query(collection(firebase.db, 'calendarEvents'), orderBy('date', 'asc'));
     unsubscribe = onSnapshot(ref, (snapshot) => {
       callback(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-    });
+    }, () => callback([]));
   });
   return () => unsubscribe?.();
 }
@@ -67,7 +67,7 @@ export function listenNotices(callback) {
     const ref = collection(firebase.db, 'notices');
     unsubscribe = onSnapshot(ref, (snapshot) => {
       callback(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
-    });
+    }, () => callback([]));
   });
   return () => unsubscribe?.();
 }

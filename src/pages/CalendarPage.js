@@ -1,4 +1,4 @@
-import { getEventsForDate, getMonthDays, toDateKey, formatDate, watchCalendarEvents } from '../services/calendarService.js';
+import { getEventsForDate, getMonthDays, toDateKey, formatDate, watchCalendarEvents } from '../services/calendarService.js?v=20260708-21';
 
 export function renderCalendar(root) {
   const today = new Date();
