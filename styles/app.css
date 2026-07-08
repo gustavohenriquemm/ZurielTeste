@@ -1164,14 +1164,23 @@ button {
 }
 
 .notice-list article {
-  border: 1px solid rgba(255, 193, 7, 0.25);
+  border: 1px solid rgba(255, 72, 72, 0.74);
   border-radius: 16px;
-  background: #101010;
+  background: rgba(120, 0, 0, 0.22);
   padding: 14px;
+  box-shadow: 0 18px 42px rgba(255, 0, 0, 0.14);
 }
 
 .notice-list strong {
-  color: var(--brand);
+  color: #ff5b5b;
+}
+
+.notice-list time {
+  display: block;
+  margin-top: 6px;
+  color: #ffb3b3;
+  font-weight: 800;
+  font-size: 0.9rem;
 }
 
 .notice-list p {

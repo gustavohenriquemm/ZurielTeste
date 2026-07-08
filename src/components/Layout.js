@@ -1,5 +1,5 @@
 import { icon } from './icons.js?v=20260708-5';
-import { listenNotices } from '../../database/firestore.js?v=20260708-28';
+import { listenNotices } from '../../database/firestore.js?v=20260708-30';
 
 let noticesUnsubscribe;
 let activeNotices = [];
@@ -85,6 +85,7 @@ function bindNotices(root) {
         ${activeNotices.length ? activeNotices.map((notice) => `
           <article>
             <strong>${escapeHtml(notice.title || 'Aviso Importante')}</strong>
+            <time>${escapeHtml(formatNoticeDate(notice))}</time>
             <p>${escapeHtml(notice.message || '')}</p>
           </article>
         `).join('') : '<article><strong>Nenhum aviso ativo</strong><p>Quando houver um aviso da igreja, ele aparecera aqui.</p></article>'}
@@ -151,4 +152,10 @@ function toDateKey(date) {
 
 function escapeHtml(value) {
   return String(value || '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[char]));
+}
+
+function formatNoticeDate(notice) {
+  const key = normalizeDateKey(notice.startDate) || getLocalDateKey();
+  const [year, month, day] = key.split('-').map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }

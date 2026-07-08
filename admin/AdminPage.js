@@ -11,7 +11,7 @@ import {
   saveNotice,
   signInAdmin,
   signOutAdmin,
-} from '../database/firestore.js?v=20260708-26';
+} from '../database/firestore.js?v=20260708-30';
 import { getHymns } from '../src/services/hymnService.js';
 
 export function renderAdmin(root) {
@@ -105,8 +105,7 @@ function renderEditor(content, user) {
         <div class="field"><label for="notice-title">Titulo</label><input id="notice-title" required></div>
         <div class="field"><label for="notice-message">Mensagem</label><textarea id="notice-message" required></textarea></div>
         <div class="field"><label for="notice-active">Ativo</label><select id="notice-active"><option value="true">Ativo</option><option value="false">Inativo</option></select></div>
-        <div class="field"><label for="notice-start">Data de inicio</label><input id="notice-start" type="date"></div>
-        <div class="field"><label for="notice-expire">Data de validade</label><input id="notice-expire" type="date"></div>
+        <div class="field"><label for="notice-start">Data do aviso</label><input id="notice-start" type="date"></div>
         <div class="form-actions">
           <button class="primary-button" type="submit">Salvar aviso</button>
           <button class="danger-button" type="button" data-delete-notice>Excluir</button>
@@ -316,7 +315,6 @@ function renderEditor(content, user) {
     setValue(forms.notice, '#notice-message', item?.message);
     setValue(forms.notice, '#notice-active', String(item?.active !== false));
     setValue(forms.notice, '#notice-start', item?.startDate || getLocalDateKey());
-    setValue(forms.notice, '#notice-expire', item?.expiresAt);
     openModal(screen, forms, forms.notice);
   }
 
@@ -329,7 +327,7 @@ function renderEditor(content, user) {
         message: forms.notice.querySelector('#notice-message').value.trim(),
         active: forms.notice.querySelector('#notice-active').value === 'true',
         startDate: forms.notice.querySelector('#notice-start').value,
-        expiresAt: forms.notice.querySelector('#notice-expire').value,
+        expiresAt: '',
       });
       closeModal(screen, forms);
       showToast('Aviso salvo.');

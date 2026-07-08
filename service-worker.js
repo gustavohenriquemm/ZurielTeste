@@ -1,4 +1,4 @@
-const CACHE_NAME = 'igreja-zuriel-v29';
+const CACHE_NAME = 'igreja-zuriel-v30';
 const STATIC_FILES = [
   '/',
   '/index.html',
