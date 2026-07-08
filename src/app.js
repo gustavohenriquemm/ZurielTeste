@@ -1,8 +1,8 @@
-import { renderLayout } from './components/Layout.js?v=20260708-27';
+import { renderLayout } from './components/Layout.js?v=20260708-28';
 import { renderHome } from './pages/HomePage.js?v=20260708-21';
 import { renderBible } from './pages/BiblePage.js?v=20260708-2';
 import { renderHymnal } from './pages/HymnalPage.js?v=20260708-23';
-import { renderCalendar } from './pages/CalendarPage.js?v=20260708-27';
+import { renderCalendar } from './pages/CalendarPage.js?v=20260708-29';
 import { renderAdmin } from '../admin/AdminPage.js?v=20260708-26';
 import { initTheme } from './hooks/useTheme.js';
 import { registerServiceWorker } from './utils/pwa.js?v=20260708-2';

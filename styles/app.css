@@ -906,6 +906,11 @@ button {
   font-weight: 800;
 }
 
+.calendar-day span.has-notice {
+  background: #ff4848;
+  color: #fff;
+}
+
 .day-events {
   display: grid;
   gap: 12px;
@@ -927,6 +932,11 @@ button {
   border-radius: 18px;
   border: 1px solid color-mix(in srgb, var(--event-color) 65%, transparent);
   background: #141414;
+}
+
+.calendar-warning-event {
+  border-color: rgba(255, 72, 72, 0.74);
+  background: rgba(120, 0, 0, 0.22);
 }
 
 .calendar-event time {

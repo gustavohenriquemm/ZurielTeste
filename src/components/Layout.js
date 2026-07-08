@@ -1,5 +1,5 @@
 import { icon } from './icons.js?v=20260708-5';
-import { listenNotices } from '../../database/firestore.js?v=20260708-27';
+import { listenNotices } from '../../database/firestore.js?v=20260708-28';
 
 let noticesUnsubscribe;
 let activeNotices = [];

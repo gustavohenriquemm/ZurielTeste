@@ -1,5 +1,5 @@
 import { getEventsForDate, getMonthDays, toDateKey, formatDate, watchCalendarEvents } from '../services/calendarService.js?v=20260708-21';
-import { listenNotices } from '../../database/firestore.js?v=20260708-27';
+import { listenNotices } from '../../database/firestore.js?v=20260708-28';
 
 export function renderCalendar(root) {
   const today = new Date();
@@ -34,17 +34,8 @@ export function renderCalendar(root) {
   function draw() {
     const days = getMonthDays(current.getFullYear(), current.getMonth());
     const selectedEvents = getEventsForDate(selected, remoteEvents);
+    const selectedNotices = activeNotices;
     calendar.innerHTML = `
-      ${activeNotices.length ? `
-        <section class="calendar-notices" aria-label="Avisos ativos">
-          ${activeNotices.map((notice) => `
-            <article class="calendar-notice">
-              <strong>${escapeHtml(notice.title || 'Aviso')}</strong>
-              <p>${escapeHtml(notice.message || '')}</p>
-            </article>
-          `).join('')}
-        </section>
-      ` : ''}
       <div class="calendar-toolbar">
         <button class="plain-button" data-prev>Anterior</button>
         <h2>${current.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}</h2>
@@ -56,20 +47,36 @@ export function renderCalendar(root) {
       <div class="calendar-grid">
         ${days.map((day) => {
           const events = getEventsForDate(day, remoteEvents);
+          const notices = getNoticesForDate(day, activeNotices);
           const inMonth = day.getMonth() === current.getMonth();
           const active = toDateKey(day) === toDateKey(selected);
+          const totalItems = events.length + notices.length;
           return `
             <button class="calendar-day ${inMonth ? '' : 'muted'} ${active ? 'active' : ''}" data-date="${toDateKey(day)}">
               <strong>${day.getDate()}</strong>
-              ${events.length ? `<span>${events.length}</span>` : ''}
+              ${totalItems ? `<span class="${notices.length ? 'has-notice' : ''}">${totalItems}</span>` : ''}
             </button>
           `;
         }).join('')}
       </div>
       <div class="day-events">
         <h3>${formatDate(selected)}</h3>
-        ${selectedEvents.length
-          ? selectedEvents.map((event) => `
+        ${selectedEvents.length || selectedNotices.length
+          ? `
+            ${selectedNotices.map((notice) => {
+              const noticeDate = parseDateKey(getNoticeDateKey(notice));
+              return `
+                <article class="calendar-event calendar-warning-event" style="--event-color:#ff4848">
+                  <time>${formatShortDate(noticeDate)}</time>
+                  <div>
+                    <strong>Aviso: ${escapeHtml(notice.title || 'Aviso')}</strong>
+                    <span>${escapeHtml(notice.message || '')}</span>
+                    <small>Data: ${formatDate(noticeDate)}</small>
+                  </div>
+                </article>
+              `;
+            }).join('')}
+            ${selectedEvents.map((event) => `
             <article class="calendar-event" style="--event-color:${event.color || '#FFC107'}">
               <time>${event.time || '--:--'}</time>
               <div>
@@ -78,7 +85,8 @@ export function renderCalendar(root) {
                 ${event.notes ? `<small>${escapeHtml(event.notes)}</small>` : ''}
               </div>
             </article>
-          `).join('')
+          `).join('')}
+          `
           : '<p class="empty">Nenhum evento para este dia.</p>'}
       </div>
     `;
@@ -108,6 +116,19 @@ function isNoticeActive(notice) {
   const today = toDateKey(new Date());
   if (notice.expiresAt && String(notice.expiresAt).slice(0, 10) < today) return false;
   return true;
+}
+
+function getNoticesForDate(date, notices) {
+  const dateKey = toDateKey(date);
+  return notices.filter((notice) => getNoticeDateKey(notice) === dateKey);
+}
+
+function getNoticeDateKey(notice) {
+  return String(notice.startDate || toDateKey(new Date())).slice(0, 10);
+}
+
+function formatShortDate(date) {
+  return `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
 }
 
 function parseDateKey(value) {
