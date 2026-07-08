@@ -15,17 +15,17 @@
 
 [data-theme="dark"] {
   color-scheme: dark;
-  --bg: #121511;
-  --surface: #1b2019;
-  --surface-soft: #252d22;
-  --text: #f3f5ed;
-  --muted: #b6bead;
-  --line: #394333;
-  --brand: #7cc7a7;
-  --brand-strong: #9ddfc3;
-  --accent: #efc35d;
-  --danger: #f08078;
-  --shadow: 0 18px 46px rgba(0, 0, 0, 0.34);
+  --bg: #0b0b0b;
+  --surface: #171717;
+  --surface-soft: #222222;
+  --text: #ffffff;
+  --muted: #b8b8b8;
+  --line: rgba(255, 193, 7, 0.28);
+  --brand: #ffc107;
+  --brand-strong: #ffd666;
+  --accent: #ffc107;
+  --danger: #ff7a70;
+  --shadow: 0 22px 50px rgba(0, 0, 0, 0.38);
 }
 
 * {
@@ -42,9 +42,7 @@ body {
 }
 
 [data-theme="dark"] body {
-  background:
-    linear-gradient(rgba(18, 21, 17, 0.9), rgba(18, 21, 17, 0.96)),
-    url("../img/Fundo pasta mocidade.jpeg") center/cover fixed;
+  background: #0b0b0b;
 }
 
 button,
