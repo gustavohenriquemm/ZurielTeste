@@ -1,5 +1,5 @@
 import { icon } from './icons.js?v=20260708-5';
-import { listenNotices } from '../../database/firestore.js?v=20260708-25';
+import { listenNotices } from '../../database/firestore.js?v=20260708-26';
 
 let noticesUnsubscribe;
 let activeNotices = [];
@@ -118,9 +118,7 @@ function bindNotices(root) {
 function isNoticeActive(notice) {
   if (notice.active === false || notice.active === 'false') return false;
   const today = getLocalDateKey();
-  const startDate = normalizeDateKey(notice.startDate);
   const expiresAt = normalizeDateKey(notice.expiresAt);
-  if (startDate && startDate > today) return false;
   if (expiresAt && expiresAt < today) return false;
   return true;
 }

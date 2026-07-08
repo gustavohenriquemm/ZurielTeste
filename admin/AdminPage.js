@@ -11,7 +11,7 @@ import {
   saveNotice,
   signInAdmin,
   signOutAdmin,
-} from '../database/firestore.js?v=20260708-24';
+} from '../database/firestore.js?v=20260708-26';
 import { getHymns } from '../src/services/hymnService.js';
 
 export function renderAdmin(root) {
@@ -393,9 +393,8 @@ function getNextNumber(items) {
 }
 
 function isNoticeActive(notice) {
-  if (notice.active === false) return false;
-  const today = new Date().toISOString().slice(0, 10);
-  if (notice.startDate && notice.startDate > today) return false;
+  if (notice.active === false || notice.active === 'false') return false;
+  const today = getLocalDateKey();
   if (notice.expiresAt && notice.expiresAt < today) return false;
   return true;
 }
