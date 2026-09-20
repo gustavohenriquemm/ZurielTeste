@@ -1,4 +1,4 @@
-import { getEventsForDate, getMonthDays, toDateKey, formatDate, watchCalendarEvents } from '../services/calendarService.js?v=20260708-21';
+import { getEventsForDate, getMonthDays, toDateKey, formatDate, watchCalendarEvents } from '../services/calendarService.js?v=20260920-1';
 import { listenNotices } from '../../database/firestore.js?v=20260708-28';
 
 export function renderCalendar(root) {
@@ -81,8 +81,10 @@ export function renderCalendar(root) {
               <time>${event.time || '--:--'}</time>
               <div>
                 <strong>${escapeHtml(event.icon || '')} ${escapeHtml(event.title || event.description || 'Evento')}</strong>
+                ${event.lessonTitle ? `<span>Lição ${escapeHtml(event.lessonNumber || '')}: ${escapeHtml(event.lessonTitle)}</span>` : ''}
                 <span>${escapeHtml(event.location || 'Local nao informado')}</span>
                 ${event.notes ? `<small>${escapeHtml(event.notes)}</small>` : ''}
+                ${event.lessonUrl ? `<a class="calendar-event-link" href="${escapeAttr(event.lessonUrl)}" target="_blank" rel="noopener">Abrir lição</a>` : ''}
               </div>
             </article>
           `).join('')}
@@ -138,4 +140,8 @@ function parseDateKey(value) {
 
 function escapeHtml(value) {
   return String(value || '').replace(/[&<>"']/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' }[char]));
+}
+
+function escapeAttr(value) {
+  return escapeHtml(value).replace(/`/g, '&#096;');
 }

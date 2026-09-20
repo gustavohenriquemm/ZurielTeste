@@ -959,6 +959,23 @@ button {
   color: var(--muted);
 }
 
+.calendar-event-link {
+  width: fit-content;
+  margin-top: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--brand);
+  border-radius: 999px;
+  color: var(--brand);
+  font-weight: 800;
+  text-decoration: none;
+  transition: background 220ms ease, color 220ms ease;
+}
+
+.calendar-event-link:hover {
+  background: var(--brand);
+  color: #0b0b0b;
+}
+
 .empty {
   color: var(--muted);
   padding: 24px;
